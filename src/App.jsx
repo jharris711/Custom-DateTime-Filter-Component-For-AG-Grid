@@ -52,8 +52,6 @@ const App = () => {
         comparator: function(filterLocalDate, cellValue) {
           let filterBy = filterLocalDate.getTime();
           let filterMe = cellValue.getTime();
-          console.log("filterBy", filterBy);
-          console.log("filterMe", filterMe);
           if (filterBy === filterMe) {
             return 0;
           }
