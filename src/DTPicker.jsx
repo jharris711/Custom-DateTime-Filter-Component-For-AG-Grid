@@ -1,68 +1,75 @@
 import React, {
   useEffect,
   useState,
+  useRef,
   forwardRef,
-  useImperativeHandle,
-} from 'react'
-
-import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import moment from 'moment'
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 200,
-  },
-}))
+  useImperativeHandle
+} from "react";
+import flatpickr from 'flatpickr'
+import 'flatpickr/dist/flatpickr.min.css'
+import 'flatpickr/dist/themes/dark.css'
 
 export default forwardRef((props, ref) => {
-  const classes = useStyles()
-  const [selectedDate, setSelectedDate] = useState()
+   const [date, setDate] = useState(null);
+   const [picker, setPicker] = useState(null);
+   const refFlatPickr = useRef(null);
+   const refInput = useRef(null);
 
-  function handleDateChange(d) {
-    if (d) {
-      d = new Date(d.target.value)
-      d = moment(d).format('yyyy-MM-DDThh:mm:ss')
-      setSelectedDate(d)
-    } else {
-      setSelectedDate(null)
-    }
-  }
+   const onDateChanged = (selectedDates) => {
+       setDate(selectedDates[0]);
+       props.onDateChanged();
+   };
 
-  useEffect(props.onDateChanged, [selectedDate])
+   useEffect(() => {
+       setPicker(flatpickr(refFlatPickr.current, {
+           onChange: onDateChanged,
+           dateFormat: 'Z',
+           wrap: true,
+           enableTime: true,
+           enableSeconds: true
+       }));
+   }, []);
 
-  useImperativeHandle(ref, () => {
-    return {
-      getDate: () => {
-        return new Date(selectedDate)
-      },
-      setDate: (d) => {
-        handleDateChange(d)
-      },
-    }
-  })
+   useEffect(() => {
+       if (picker) {
+           picker.calendarContainer.classList.add('ag-custom-component-popup');
+       }
+   }, [picker]);
 
-  return (
-    <>
-      <form className={classes.container} noValidate>
-        <TextField
-          id='datetime-local'
-          label=''
-          type='datetime-local'
-          className={classes.textField}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          onChange={handleDateChange}
-          value={selectedDate}
-        />
-      </form>
-    </>
-  )
+   useEffect(() => {
+       if (picker) {
+           picker.setDate(date);
+       }
+   }, [date, picker]);
+
+   useImperativeHandle(ref, () => ({
+       getDate() {
+           return date;
+       },
+
+       setDate(date) {
+           setDate(date);
+       },
+
+       setInputPlaceholder(placeholder) {
+           if (refInput.current) {
+               refInput.current.setAttribute('placeholder', placeholder);
+           }
+       },
+
+       setInputAriaLabel(label) {
+           if (refInput.current) {
+               refInput.current.setAttribute('aria-label', label);
+           }
+       }
+   }));
+
+   return (
+       <div className="ag-input-wrapper custom-date-filter" role="presentation" ref={refFlatPickr}>
+           <input type="text" ref={refInput} data-input style={{ width: "100%" }} />
+           <a class='input-button' title='clear' data-clear>
+               <i class='fa fa-times'></i>
+           </a>
+       </div>
+   );
 })
