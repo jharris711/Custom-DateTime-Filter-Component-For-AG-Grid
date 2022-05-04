@@ -15,6 +15,10 @@ export default forwardRef((props, ref) => {
    const refFlatPickr = useRef(null);
    const refInput = useRef(null);
 
+   /**
+    * Date change handler function
+    * @param { any[] } selectedDates - Array of date/s selected in FlatPickr instance
+    */
    const onDateChanged = (selectedDates) => {
        setDate(selectedDates[0]);
        props.onDateChanged();
