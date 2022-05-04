@@ -17,10 +17,10 @@ const App = () => {
   const [rowData, setRowData] = useState([]);
 
   useEffect(() => {
-    const formattedDates = dataSet.map(data => {
+    const formattedDates = dataSet.map((data) => {
       return {
         id: data.id,
-        eventTimestamp: new Date(data.eventTimestamp)
+        eventTimestamp: new Date(data.eventTimestamp),
       };
     });
     setRowData(formattedDates);
@@ -34,12 +34,15 @@ const App = () => {
     gridApi.setFilterModel(null);
   };
 
+  /**
+   * Column definitions
+   */
   const cols = [
     {
       field: "id",
       headerName: "ID",
       minWidth: 100,
-      maxWidth: 150
+      maxWidth: 150,
     },
     {
       field: "eventTimestamp",
@@ -49,38 +52,10 @@ const App = () => {
       filter: "agDateColumnFilter",
       filterParams: {
         defaultOption: "inRange",
-        comparator: function(filterLocalDate, cellValue) {
-          let filterBy = filterLocalDate.getTime();
-          let filterMe = cellValue.getTime();
-          if (filterBy === filterMe) {
-            return 0;
-          }
-
-          if (filterMe < filterBy) {
-            return -1;
-          }
-
-          if (filterMe > filterBy) {
-            return 1;
-          }
-        }
-      }
-    }
+        comparator: timestampFilter,
+      },
+    },
   ];
-
-  const onGridReady = params => {
-    setGridApi(params.api);
-    setGridColumnApi(params.columnApi);
-    params.api.addGlobalListener((type, event) => {
-      switch (type) {
-        case "filterChanged":
-          console.log(event);
-          return;
-        default:
-          return null;
-      }
-    });
-  };
 
   return (
     <div className="App">
@@ -101,17 +76,61 @@ const App = () => {
             minWidth: 100,
             resizable: true,
             sortable: true,
-            filter: true
+            filter: true,
           }}
           pagination
           columnDefs={cols}
           frameworkComponents={{
-            agDateInput: DTPicker
+            agDateInput: DTPicker,
           }}
         />
       </div>
     </div>
   );
 };
+
+/**
+ * Function to run when AG Grid component is ready
+ * @param { * } params - Params from AG Grid
+ */
+function onGridReady(params) {
+  setGridApi(params.api);
+  setGridColumnApi(params.columnApi);
+  params.api.addGlobalListener((type, event) => {
+    switch (type) {
+      case "filterChanged":
+        console.log(event);
+        return;
+      default:
+        return null;
+    }
+  });
+}
+
+/**
+ * Timestamp filter function to be passed to comparator
+ * in column definition
+ * @param { * } filterLocalDate - Date to filter by
+ * @param { * } cellValue - Date from table cell
+ * @returns 0 | 1 | -1
+ */
+function timestampFilter(filterLocalDate, cellValue) {
+  filterLocalDate = new Date(filterLocalDate);
+  // Slice the Z from the end of the timestamp string:
+  cellValue = new Date(cellValue.slice(0, -1));
+  let filterBy = filterLocalDate.getTime();
+  let filterMe = cellValue.getTime();
+  if (filterBy === filterMe) {
+    return 0;
+  }
+
+  if (filterMe < filterBy) {
+    return -1;
+  }
+
+  if (filterMe > filterBy) {
+    return 1;
+  }
+}
 
 export default App;
