@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { AgGridColumn, AgGridReact } from "ag-grid-react";
+import React, { useEffect, useState } from 'react';
+import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 
-import Button from "@material-ui/core/Button";
+import Button from '@material-ui/core/Button';
 
-import DTPicker from "./DTPicker";
+import DTPicker from './DTPicker';
 
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-balham.css";
-import "ag-grid-community/dist/styles/ag-theme-material.css";
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import 'ag-grid-community/dist/styles/ag-theme-material.css';
 
-import dataSet from "./data/MOCK_DATA.json";
+import dataSet from './data/MOCK_DATA.json';
 
 const App = () => {
   const [gridApi, setGridApi] = useState([]);
@@ -39,23 +39,35 @@ const App = () => {
    */
   const cols = [
     {
-      field: "id",
-      headerName: "ID",
-      minWidth: 100,
-      maxWidth: 150,
-    },
-    {
-      field: "eventTimestamp",
-      headerName: "Event Timestamp",
+      field: 'eventTimestamp',
+      headerName: 'Event Timestamp',
       minWidth: 225,
       maxWidth: 300,
-      filter: "agDateColumnFilter",
+      filter: 'agDateColumnFilter',
       filterParams: {
-        defaultOption: "inRange",
+        defaultOption: 'inRange',
         comparator: timestampFilter,
       },
     },
   ];
+
+  /**
+   * Function to run when AG Grid component is ready
+   * @param { * } params - Params from AG Grid
+   */
+  function onGridReady(params) {
+    setGridApi(params.api);
+    setGridColumnApi(params.columnApi);
+    params.api.addGlobalListener((type, event) => {
+      switch (type) {
+        case 'filterChanged':
+          console.log(event);
+          return;
+        default:
+          return null;
+      }
+    });
+  }
 
   return (
     <div className="App">
@@ -64,8 +76,8 @@ const App = () => {
       </Button>
       <hr />
       <div
-        className={"ag-theme-balham"}
-        style={{ height: "86vh", width: "100%" }}
+        className={'ag-theme-balham'}
+        style={{ height: '86vh', width: '100%' }}
       >
         <AgGridReact
           onGridReady={onGridReady}
@@ -90,24 +102,6 @@ const App = () => {
 };
 
 /**
- * Function to run when AG Grid component is ready
- * @param { * } params - Params from AG Grid
- */
-function onGridReady(params) {
-  setGridApi(params.api);
-  setGridColumnApi(params.columnApi);
-  params.api.addGlobalListener((type, event) => {
-    switch (type) {
-      case "filterChanged":
-        console.log(event);
-        return;
-      default:
-        return null;
-    }
-  });
-}
-
-/**
  * Timestamp filter function to be passed to comparator
  * in column definition
  * @param { * } filterLocalDate - Date to filter by
@@ -117,7 +111,9 @@ function onGridReady(params) {
 function timestampFilter(filterLocalDate, cellValue) {
   filterLocalDate = new Date(filterLocalDate);
   // Slice the Z from the end of the timestamp string:
-  cellValue = new Date(cellValue.slice(0, -1));
+  cellValue = String(cellValue).toLowerCase().includes('z')
+    ? cellValue.slice(0, -1)
+    : cellValue;
   let filterBy = filterLocalDate.getTime();
   let filterMe = cellValue.getTime();
   if (filterBy === filterMe) {
