@@ -15,10 +15,6 @@ export default forwardRef((props, ref) => {
   const refFlatPickr = useRef(null);
   const refInput = useRef(null);
 
-  /**
-   * Date change handler function
-   * @param { any[] } selectedDates - Array of date/s selected in FlatPickr instance
-   */
   const onDateChanged = (selectedDates) => {
     setDate(selectedDates[0]);
     props.onDateChanged();
@@ -77,8 +73,8 @@ export default forwardRef((props, ref) => {
       ref={refFlatPickr}
     >
       <input type="text" ref={refInput} data-input style={{ width: '100%' }} />
-      <a class="input-button" title="clear" data-clear>
-        <i class="fa fa-times"></i>
+      <a className="input-button" title="clear" data-clear>
+        <i className="fa fa-times"></i>
       </a>
     </div>
   );

@@ -6,7 +6,6 @@ import Button from '@material-ui/core/Button';
 import DTPicker from './DTPicker';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import 'ag-grid-community/dist/styles/ag-theme-material.css';
 
 import dataSet from './data/MOCK_DATA.json';
@@ -41,12 +40,12 @@ const App = () => {
     {
       field: 'eventTimestamp',
       headerName: 'Event Timestamp',
-      minWidth: 225,
-      maxWidth: 300,
+      minWidth: 250,
+      maxWidth: 450,
       filter: 'agDateColumnFilter',
       filterParams: {
         defaultOption: 'inRange',
-        comparator: timestampFilter,
+        comparator: timestampFilter, // <- Custom timestamp filter
       },
     },
   ];
@@ -76,7 +75,7 @@ const App = () => {
       </Button>
       <hr />
       <div
-        className={'ag-theme-balham'}
+        className={'ag-theme-material'}
         style={{ height: '86vh', width: '100%' }}
       >
         <AgGridReact
